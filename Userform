@@ -1,0 +1,200 @@
+
+
+Private Sub UserForm_Initialize()
+     
+    'Variable declaration
+    Dim IdVal As Integer
+    
+    'Finding last row in the Data Sheet
+    IdVal = fn_LastRow(Sheets("Data"))
+    
+    'Update next available id on the userform
+    frmData.txtId = IdVal
+    
+    'Combo Box
+    cboxSupplier.AddItem "OnSemi(Fairchild)"
+    cboxSupplier.AddItem "Texas Instrument"
+    cboxSupplier.AddItem "Cypress"
+    cboxSupplier.AddItem "Diodes"
+    cboxSupplier.AddItem "Vishay"
+    cboxSupplier.AddItem "Toshiba"
+    cboxSupplier.AddItem "Micron"
+    cboxSupplier.AddItem "Pericom"
+    cboxSupplier.AddItem "Murata"
+    cboxSupplier.AddItem "Maxim"
+    cboxSupplier.AddItem "Winbond"
+    cboxSupplier.AddItem "NXP"
+    cboxSupplier.AddItem "Nuvoton"
+    cboxSupplier.AddItem "Microchip"
+   
+End Sub
+Sub cmdAdd_Click()
+    On Error GoTo ErrOccured
+    'Boolean Value
+    BlnVal = 0
+    
+    'Data Validation
+    Call Data_Validation
+    
+    'Check validation of all fields are completed are not
+    If BlnVal = 0 Then Exit Sub
+      
+    'TurnOff screen updating
+    With Application
+        .ScreenUpdating = False
+        .EnableEvents = False
+    End With
+     
+    'Variable declaration
+    Dim txtId, txtName, ODMValue, SupplierValue, txtPNum, txtDescr, txtRemarks
+    Dim iCnt As Integer
+    
+    'find next available row to update data in the data worksheet
+    iCnt = fn_LastRow(Sheets("Data")) + 1
+
+    'Find ODM value
+    If frmData.obFXN = True Then
+       ODMValue = "Foxconn"
+    ElseIf frmData.obIDE = True Then
+     
+       ODMValue = "IDE"
+    Else
+        ODMValue = "Wistron"
+    End If
+    
+    'Find Location Value
+    Select Case frmData.cboxSupplier.ListIndex
+
+ 
+    Case 0
+        SupplierValue = "OnSemi(Fairchild)"
+    Case 1
+        SupplierValue = "Texas Instrument"
+    Case 2
+        SupplierValue = "Cypress"
+    Case 3
+        SupplierValue = "Diodes"
+    Case 4
+        SupplierValue = "Toshiba"
+    Case 5
+        SupplierValue = "Vishay"
+    Case 6
+        SupplierValue = "Micron"
+    Case 7
+        SupplierValue = "Pericom"
+    Case 8
+        SupplierValue = "Murata"
+    Case 9
+        SupplierValue = "Maxim"
+    Case 10
+        SupplierValue = "Winbond"
+    Case 11
+        SupplierValue = "NXP"
+    Case 12
+        SupplierValue = "Nuvoton"
+    Case 13
+        SupplierValue = "Microchip"
+  End Select
+    
+    'Update userform data to the Data Worksheet
+    With Sheets("Data")
+        .Cells(iCnt, 1) = iCnt - 1
+        .Cells(iCnt, 2) = frmData.txtName
+        .Cells(iCnt, 3) = ODMValue
+        .Cells(iCnt, 4) = SupplierValue
+        .Cells(iCnt, 5) = frmData.txtDescr
+        .Cells(iCnt, 6) = frmData.txtPNum
+        .Cells(iCnt, 7) = frmData.txtRemarks
+      
+        
+        'Diplay headers on the first row of Data Worksheet
+        If .Range("A1") = "" Then
+            .Cells(1, 1) = "Id"
+            .Cells(1, 2) = "GSM"
+            .Cells(1, 3) = "ODM"
+            .Cells(1, 4) = "Supplier"
+            .Cells(1, 5) = "Description"
+            .Cells(1, 6) = "PN"
+            .Cells(1, 7) = "Remarks"
+            
+            'Formatiing Data
+            .Columns("A:G").Columns.AutoFit
+            .Range("A1:G1").Font.Bold = True
+            .Range("A1:G1").LineStyle = xlDash
+            
+        End If
+    End With
+'Display next available Id number on the Userform
+'Variable declaration
+    Dim IdVal As Integer
+    
+    'Finding last row in the Data Sheet
+    IdVal = fn_LastRow(Sheets("Data"))
+    
+    'Update next available id on the userform
+    frmData.txtId = IdVal
+ErrOccured:
+    'TurnOn screen updating
+    Application.ScreenUpdating = True
+    Application.EnableEvents = True
+   
+End Sub
+
+'In this example we are finding the last Row of specified Sheet
+Function fn_LastRow(ByVal Sht As Worksheet)
+
+    Dim lastRow As Long
+    lastRow = Sht.Cells.SpecialCells(xlLastCell).Row
+    lRow = Sht.Cells.SpecialCells(xlLastCell).Row
+    Do While Application.CountA(Sht.Rows(lRow)) = 0 And lRow <> 1
+        lRow = lRow - 1
+    Loop
+    fn_LastRow = lRow
+
+End Function
+
+'Exit from the Userform
+Private Sub cmdCancel_Click()
+    Unload Me
+End Sub
+
+' Check all the data(except remarks field) has entered are not on the userform
+Sub Data_Validation()
+     If txtName = "" Then
+        MsgBox "Enter GSMName!", vbInformation, "GSMName"
+        Exit Sub
+     ElseIf frmData.obFXN = False And frmData.obIDE = False And frmData.obWistron = False Then
+        MsgBox "Select ODM!", vbInformation, "ODM"
+        Exit Sub
+     ElseIf frmData.cboxSupplier.ListIndex = -1 Then
+        MsgBox "Select Supplier!", vbInformation, "Supplier"
+        Exit Sub
+    ElseIf txtDescr = "" Then
+        MsgBox "Description!", vbInformation, "Description"
+        Exit Sub
+    ElseIf txtPNum = "" Then
+        MsgBox "Enter PN!", vbInformation, "PN"
+        Exit Sub
+    Else
+        BlnVal = 1
+    End If
+    
+
+End Sub
+
+'Clearing data fields of userform
+Private Sub cmdClear_Click()
+    Application.ScreenUpdating = False
+        'txtId.Text = ""
+        'txtName.Text = ""
+        obFXN.Value = True
+        txtSupplier = ""
+        txtDescr = ""
+        txtPNum = ""
+        txtRemarks = ""
+    Application.ScreenUpdating = True
+End Sub
+'To clear data columns data on Data Worksheet
+Sub Clear_DataSheet()
+    Sheets("Data").Columns("A:G").Clear
+End Sub
